@@ -34,7 +34,16 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
                 local suddenDeathActive
 
                 local getSpellInfo = GetSpellInfo or (C_Spell and C_Spell.GetSpellInfo)
-                local suddenDeathSpellName = (getSpellInfo and getSpellInfo(52437)) or "Sudden Death" -- Sudden Death
+                local suddenDeathSpellName
+                if getSpellInfo then
+                        local info = getSpellInfo(52437)
+                        if type(info) == "table" then
+                                suddenDeathSpellName = info.name
+                        else
+                                suddenDeathSpellName = info
+                        end
+                end
+                suddenDeathSpellName = suddenDeathSpellName or "Sudden Death" -- Sudden Death
 
                 if AuraUtil and AuraUtil.FindAuraByName then
                         suddenDeathActive = AuraUtil.FindAuraByName(suddenDeathSpellName, "player", "HELPFUL")
