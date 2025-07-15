@@ -30,7 +30,12 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
                 local hp = (UnitHealth("target") / UnitHealthMax("target"))
                 local canAttack = UnitCanAttack("player", "target")
                 local dead = UnitIsDead("target")
-                local t = GetActiveSpecGroup()
+                -- Use the player's specialization index instead of the active spec
+                -- group. GetActiveSpecGroup() only returns 1 or 2 depending on
+                -- which equipment set is active, which breaks class checks for
+                -- classes with more than two specs. GetSpecialization() returns
+                -- the actual specialization ID (1-4 depending on the class).
+                local t = GetSpecialization()
                 local suddenDeathActive
 
                 local getSpellInfo = GetSpellInfo or (C_Spell and C_Spell.GetSpellInfo)
