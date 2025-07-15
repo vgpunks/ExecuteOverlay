@@ -65,13 +65,13 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
                                 end
                         elseif (class == "HUNTER" and hp <= 0.20) or (class =="MAGE" and t == 2 and hp <= 0.35) or (class == "PALADIN" and t == 3 and hp <= 0.20) or (class == "PRIEST" and t == 3 and hp <= 0.25) or (class == "ROGUE" and t == 1 and hp <= 0.35) or (class == "WARLOCK" and hp <= 0.25) or (class == "WARRIOR" and (hp <= 0.20 or suddenDeathActive)) then
                                  if SpellActivationOverlayFrame.ShowOverlay then
-                                         SpellActivationOverlayFrame:ShowOverlay(0, "TEXTURES\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
+                                         SpellActivationOverlayFrame:ShowOverlay(0, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
                                  elseif SpellActivationOverlay_ShowOverlay then
-                                         SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, 0, "TEXTURES\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
+                                         SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, 0, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
                                  elseif C_SpellActivationOverlay and C_SpellActivationOverlay.ShowOverlay then
-                                         C_SpellActivationOverlay.ShowOverlay(SpellActivationOverlayFrame, 0, "TEXTURES\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
+                                         C_SpellActivationOverlay.ShowOverlay(SpellActivationOverlayFrame, 0, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
                                  end
-		--		SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, _, "TEXTURES\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "LEFT", 0.7, 255, 0, 0, false, false)
+		--		SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, _, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "LEFT", 0.7, 255, 0, 0, false, false)
 			else
                                 if SpellActivationOverlayFrame.HideOverlays then
                                         SpellActivationOverlayFrame:HideOverlays()
