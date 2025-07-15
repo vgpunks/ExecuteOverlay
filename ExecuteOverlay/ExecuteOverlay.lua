@@ -34,12 +34,24 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
 		
 		if canAttack then
 			if dead then
-				SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
+                                if SpellActivationOverlayFrame.HideOverlays then
+                                        SpellActivationOverlayFrame:HideOverlays()
+                                elseif SpellActivationOverlay_HideOverlays then
+                                        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
+                                end
 			elseif (class == "HUNTER" and hp <= 0.20) or (class =="MAGE" and t == 2 and hp <= 0.35) or (class == "PALADIN" and t == 3 and hp <= 0.20) or (class == "PRIEST" and t == 3 and hp <= 0.25) or (class == "ROGUE" and t == 1 and hp <= 0.35) or (class == "WARLOCK" and hp <= 0.25) or (class == "WARRIOR" and hp <= 0.20) then
-				SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, _, 450923, "TOP", 1, 255, 0, 0, false, false)
+                                  if SpellActivationOverlayFrame.ShowOverlay then
+                                          SpellActivationOverlayFrame:ShowOverlay(_, 450923, "TOP", 1, 255, 0, 0, false, false)
+                                  else
+                                          SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, _, 450923, "TOP", 1, 255, 0, 0, false, false)
+                                  end
 		--		SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, _, "TEXTURES\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "LEFT", 0.7, 255, 0, 0, false, false)
 			else
-				SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
+                                if SpellActivationOverlayFrame.HideOverlays then
+                                        SpellActivationOverlayFrame:HideOverlays()
+                                elseif SpellActivationOverlay_HideOverlays then
+                                        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
+                                end
 			end
 		end
 	end
@@ -47,7 +59,11 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
 
 	-- Hide when switching targets
 	local function reset()
-		SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
+                if SpellActivationOverlayFrame.HideOverlays then
+                        SpellActivationOverlayFrame:HideOverlays()
+                elseif SpellActivationOverlay_HideOverlays then
+                        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
+                end
 	end
 
 
