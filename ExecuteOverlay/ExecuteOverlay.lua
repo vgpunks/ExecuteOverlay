@@ -33,10 +33,12 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
                 local t = GetActiveSpecGroup()
                 local suddenDeathActive
 
+                local suddenDeathSpellName = GetSpellInfo(52437) -- Sudden Death
+
                 if AuraUtil and AuraUtil.FindAuraByName then
-                        suddenDeathActive = AuraUtil.FindAuraByName("Sudden Death", "player", "HELPFUL")
+                        suddenDeathActive = AuraUtil.FindAuraByName(suddenDeathSpellName, "player", "HELPFUL")
                 else
-                        suddenDeathActive = UnitBuff("player", "Sudden Death")
+                        suddenDeathActive = UnitBuff("player", suddenDeathSpellName)
                 end
 		
 		if canAttack then
