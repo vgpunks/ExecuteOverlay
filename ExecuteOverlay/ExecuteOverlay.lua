@@ -27,10 +27,17 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
 
 	-- Main function
 	local function executeRange(target)
-		local hp = (UnitHealth("target") / UnitHealthMax("target"))
-		local canAttack = UnitCanAttack("player", "target")
-		local dead = UnitIsDead("target")
-		local t = GetActiveSpecGroup()
+                local hp = (UnitHealth("target") / UnitHealthMax("target"))
+                local canAttack = UnitCanAttack("player", "target")
+                local dead = UnitIsDead("target")
+                local t = GetActiveSpecGroup()
+                local suddenDeathActive
+
+                if AuraUtil and AuraUtil.FindAuraByName then
+                        suddenDeathActive = AuraUtil.FindAuraByName("Sudden Death", "player", "HELPFUL")
+                else
+                        suddenDeathActive = UnitBuff("player", "Sudden Death")
+                end
 		
 		if canAttack then
 			if dead then
@@ -39,7 +46,7 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
                                 elseif SpellActivationOverlay_HideOverlays then
                                         SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
                                 end
-			elseif (class == "HUNTER" and hp <= 0.20) or (class =="MAGE" and t == 2 and hp <= 0.35) or (class == "PALADIN" and t == 3 and hp <= 0.20) or (class == "PRIEST" and t == 3 and hp <= 0.25) or (class == "ROGUE" and t == 1 and hp <= 0.35) or (class == "WARLOCK" and hp <= 0.25) or (class == "WARRIOR" and hp <= 0.20) then
+                        elseif (class == "HUNTER" and hp <= 0.20) or (class =="MAGE" and t == 2 and hp <= 0.35) or (class == "PALADIN" and t == 3 and hp <= 0.20) or (class == "PRIEST" and t == 3 and hp <= 0.25) or (class == "ROGUE" and t == 1 and hp <= 0.35) or (class == "WARLOCK" and hp <= 0.25) or (class == "WARRIOR" and (hp <= 0.20 or suddenDeathActive)) then
                                   if SpellActivationOverlayFrame.ShowOverlay then
                                           SpellActivationOverlayFrame:ShowOverlay(_, 450923, "TOP", 1, 255, 0, 0, false, false)
                                   else
@@ -68,16 +75,22 @@ if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin 
 
 
 	-- Event handler
-	eventHandler:RegisterEvent("UNIT_HEALTH")
-	eventHandler:RegisterEvent("PLAYER_TARGET_CHANGED")
+        eventHandler:RegisterEvent("UNIT_HEALTH")
+        eventHandler:RegisterEvent("PLAYER_TARGET_CHANGED")
+        eventHandler:RegisterEvent("UNIT_AURA")
 
-	eventHandler:SetScript("OnEvent", function(self, event, arg1)
-		if (event == "UNIT_HEALTH") then
-			executeRange()
-		end
+        eventHandler:SetScript("OnEvent", function(self, event, arg1)
+                if event == "UNIT_HEALTH" then
+                        executeRange()
+                end
 
-		if (event == "PLAYER_TARGET_CHANGED") then
-			reset()
-		end
-	end)
+                if event == "PLAYER_TARGET_CHANGED" then
+                        reset()
+                        executeRange()
+                end
+
+                if event == "UNIT_AURA" and arg1 == "player" then
+                        executeRange()
+                end
+        end)
 end
