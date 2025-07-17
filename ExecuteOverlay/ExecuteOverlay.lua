@@ -22,7 +22,8 @@ local thresholds = {
 }
 
 local overlayTexture = "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP"
-local overlayID = 0
+-- use a non-zero overlay id so the activation frame properly registers the event
+local overlayID = 1
 
 local class = select(2, UnitClass("player"))
 
