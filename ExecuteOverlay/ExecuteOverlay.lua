@@ -1,115 +1,109 @@
+-- ExecuteOverlay
+-- Updated overlay logic for modern API
 
--- CONFIGURATION ----------------------------------
+local config = {
+    HUNTER = true,
+    MAGE = true,
+    PALADIN = true,
+    PRIEST = true,
+    ROGUE = true,
+    WARLOCK = true,
+    WARRIOR = true,
+}
 
+local thresholds = {
+    HUNTER = 0.20,
+    MAGE   = { [2] = 0.35 }, -- Frost
+    PALADIN= { [3] = 0.20 }, -- Retribution
+    PRIEST = { [3] = 0.25 }, -- Shadow
+    ROGUE  = { [1] = 0.35 },
+    WARLOCK= 0.25,
+    WARRIOR= 0.20,
+}
 
-local hunter = true
-local mage = true
-local paladin = true
-local priest = true
-local rogue = true
-local warlock = true
-local warrior = true
+local overlayTexture = "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP"
+local overlayID = 0
 
+local class = select(2, UnitClass("player"))
 
--- END OF CONFIG ----------------------------------
-
-
-
-
-local _, class = UnitClass("player")
-
-
--- Only load the addon for the classes that can, or want, to use it
-if (hunter and (class == "HUNTER")) or (mage and (class == "MAGE")) or (paladin and (class == "PALADIN")) or (priest and (class == "PRIEST")) or (rogue and (class == "ROGUE")) or (warlock and (class == "WARLOCK")) or (warrior and (class == "WARRIOR")) then
-
-	local eventHandler = CreateFrame("frame")
-
-
-	-- Main function
-	local function executeRange(target)
-                local hp = (UnitHealth("target") / UnitHealthMax("target"))
-                local canAttack = UnitCanAttack("player", "target")
-                local dead = UnitIsDead("target")
-                -- Use the player's specialization index instead of the active spec
-                -- group. GetActiveSpecGroup() only returns 1 or 2 depending on
-                -- which equipment set is active, which breaks class checks for
-                -- classes with more than two specs. GetSpecialization() returns
-                -- the actual specialization ID (1-4 depending on the class).
-                local t = GetSpecialization()
-                local suddenDeathActive
-
-                local getSpellInfo = GetSpellInfo or (C_Spell and C_Spell.GetSpellInfo)
-                local suddenDeathSpellName
-                if getSpellInfo then
-                        local info = getSpellInfo(52437)
-                        if type(info) == "table" then
-                                suddenDeathSpellName = info.name
-                        else
-                                suddenDeathSpellName = info
-                        end
-                end
-                suddenDeathSpellName = suddenDeathSpellName or "Sudden Death" -- Sudden Death
-
-                if AuraUtil and AuraUtil.FindAuraByName then
-                        suddenDeathActive = AuraUtil.FindAuraByName(suddenDeathSpellName, "player", "HELPFUL")
-                else
-                        suddenDeathActive = UnitBuff("player", suddenDeathSpellName)
-                end
-		
-		if canAttack then
-			if dead then
-                                if SpellActivationOverlayFrame.HideOverlays then
-                                        SpellActivationOverlayFrame:HideOverlays()
-                                elseif SpellActivationOverlay_HideOverlays then
-                                        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
-                                end
-                        elseif (class == "HUNTER" and hp <= 0.20) or (class =="MAGE" and t == 2 and hp <= 0.35) or (class == "PALADIN" and t == 3 and hp <= 0.20) or (class == "PRIEST" and t == 3 and hp <= 0.25) or (class == "ROGUE" and t == 1 and hp <= 0.35) or (class == "WARLOCK" and hp <= 0.25) or (class == "WARRIOR" and (hp <= 0.20 or suddenDeathActive)) then
-                                 if SpellActivationOverlayFrame.ShowOverlay then
-                                         SpellActivationOverlayFrame:ShowOverlay(0, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
-                                 elseif SpellActivationOverlay_ShowOverlay then
-                                         SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, 0, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
-                                 elseif C_SpellActivationOverlay and C_SpellActivationOverlay.ShowOverlay then
-                                         C_SpellActivationOverlay.ShowOverlay(SpellActivationOverlayFrame, 0, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "TOP", 1, 255, 0, 0, false, false)
-                                 end
-		--		SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, _, "INTERFACE\\SPELLACTIVATIONOVERLAYS\\GENERICARC_05.BLP", "LEFT", 0.7, 255, 0, 0, false, false)
-			else
-                                if SpellActivationOverlayFrame.HideOverlays then
-                                        SpellActivationOverlayFrame:HideOverlays()
-                                elseif SpellActivationOverlay_HideOverlays then
-                                        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
-                                end
-			end
-		end
-	end
-
-
-	-- Hide when switching targets
-	local function reset()
-                if SpellActivationOverlayFrame.HideOverlays then
-                        SpellActivationOverlayFrame:HideOverlays()
-                elseif SpellActivationOverlay_HideOverlays then
-                        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, _)
-                end
-	end
-
-
-	-- Event handler
-        eventHandler:RegisterEvent("UNIT_HEALTH")
-        eventHandler:RegisterEvent("PLAYER_TARGET_CHANGED")
-        eventHandler:RegisterEvent("UNIT_AURA")
-
-        eventHandler:SetScript("OnEvent", function(self, event, arg1)
-                if event == "UNIT_HEALTH" then
-                        executeRange()
-                end
-
-                if event == "PLAYER_TARGET_CHANGED" then
-                        reset()
-                        executeRange()
-                end
-
-                if event == "UNIT_AURA" and arg1 == "player" then
-                        executeRange()
-                end
-        end)
+local function showOverlay()
+    if C_SpellActivationOverlay and C_SpellActivationOverlay.ShowOverlay then
+        C_SpellActivationOverlay.ShowOverlay(SpellActivationOverlayFrame, overlayID, overlayTexture, "TOP", 1, 255, 0, 0, false, false)
+    elseif SpellActivationOverlayFrame and SpellActivationOverlayFrame.ShowOverlay then
+        SpellActivationOverlayFrame:ShowOverlay(overlayID, overlayTexture, "TOP", 1, 255, 0, 0, false, false)
+    elseif SpellActivationOverlay_ShowOverlay then
+        SpellActivationOverlay_ShowOverlay(SpellActivationOverlayFrame, overlayID, overlayTexture, "TOP", 1, 255, 0, 0, false, false)
+    end
 end
+
+local function hideOverlay()
+    if SpellActivationOverlayFrame and SpellActivationOverlayFrame.HideOverlays then
+        SpellActivationOverlayFrame:HideOverlays()
+    elseif SpellActivationOverlay_HideOverlays then
+        SpellActivationOverlay_HideOverlays(SpellActivationOverlayFrame, overlayID)
+    elseif C_SpellActivationOverlay and C_SpellActivationOverlay.HideOverlays then
+        C_SpellActivationOverlay.HideOverlays(SpellActivationOverlayFrame)
+    end
+end
+
+local function suddenDeathActive()
+    local name = GetSpellInfo and GetSpellInfo(52437)
+    if not name then
+        return false
+    end
+    if AuraUtil and AuraUtil.FindAuraByName then
+        return AuraUtil.FindAuraByName(name, "player", "HELPFUL")
+    end
+    return UnitBuff("player", name)
+end
+
+local function inExecuteRange()
+    if not UnitExists("target") or UnitIsDead("target") then
+        return false
+    end
+
+    local hp = UnitHealth("target") / UnitHealthMax("target")
+    if not UnitCanAttack("player", "target") then
+        return false
+    end
+
+    if class == "WARRIOR" then
+        if hp <= thresholds.WARRIOR or suddenDeathActive() then
+            return true
+        end
+        return false
+    end
+
+    local spec = GetSpecialization()
+    local value = thresholds[class]
+    if type(value) == "table" then
+        value = value[spec]
+    end
+
+    return value and hp <= value
+end
+
+local function updateOverlay()
+    if inExecuteRange() then
+        showOverlay()
+    else
+        hideOverlay()
+    end
+end
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("PLAYER_LOGIN")
+frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "PLAYER_LOGIN" then
+        if not config[class] then
+            return
+        end
+        self:UnregisterEvent("PLAYER_LOGIN")
+        self:RegisterUnitEvent("UNIT_HEALTH", "target")
+        self:RegisterEvent("UNIT_AURA")
+        self:RegisterEvent("PLAYER_TARGET_CHANGED")
+        updateOverlay()
+    elseif event == "UNIT_HEALTH" or event == "UNIT_AURA" or event == "PLAYER_TARGET_CHANGED" then
+        updateOverlay()
+    end
+end)
